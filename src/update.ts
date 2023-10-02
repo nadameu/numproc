@@ -1,13 +1,4 @@
-import {
-  sanitize,
-  formatar,
-  nomePartes,
-  validarDV,
-  segmentos,
-  formatarRanges,
-  unidadesQuarta,
-  unidadesTJSC,
-} from "./numproc";
+import { sanitize } from "./logic";
 
 export function update(output: HTMLOutputElement, input: string) {
   output.textContent = "";
@@ -17,40 +8,51 @@ export function update(output: HTMLOutputElement, input: string) {
     output.innerHTML = `<span class="erro">${sanitizedEither.leftValue}</span>`;
     return;
   }
-  const sanitized = sanitizedEither.rightValue;
-  const [numproc, ...partes] =
-    sanitized.match(/^(\d{7})(\d{2})(\d{4})(\d{1})(\d{2})(\d{4})$/) ??
-    (() => {
-      throw new Error();
-    })();
+  const numproc = sanitizedEither.rightValue;
+
   const map = new Map();
-  map.set("Número do processo", formatar(partes));
-  const erros = [];
-  let sistema = undefined;
+  map.set("Número do processo", numproc.formatado);
+  map.set("Número sequencial", numproc.sequencial.txt);
+  map.set("Dígito verificador", numproc.digitoVerificador.txt);
+  if (numproc.ano.isLeft) {
+    map.set("Ano", `<span class="erro">${numproc.ano.leftValue}</span>`);
+  } else {
+    map.set("Ano", numproc.ano.rightValue.txt);
+  }
+  if (numproc.segmento.isLeft) {
+    map.set(
+      "Segmento do Poder Judiciário",
+      `<span class="erro">${numproc.segmento.leftValue}</span>`
+    );
+  } else {
+    map.set("Segmento do Poder Judiciário", numproc.segmento.rightValue.nome);
+  }
+  if (numproc.tribunal) {
+    if (numproc.tribunal.isLeft) {
+      map.set(
+        "Tribunal",
+        `<span class="erro">${numproc.tribunal.leftValue}</span>`
+      );
+    } else {
+      map.set("Tribunal", numproc.tribunal.rightValue.nome);
+    }
+  }
+  if (numproc.unidade) {
+    if (numproc.unidade.isLeft) {
+      map.set(
+        "Unidade de origem",
+        `<span class="erro">${numproc.unidade.leftValue}</span>`
+      );
+    } else {
+      map.set("Unidade de origem", numproc.unidade.rightValue.nome);
+    }
+  }
+  /*
   nomePartes.forEach((key, index) => {
     const text = partes[index];
     const num = Number(text);
-    if (index === 0) {
-      const numSegmento = Number(partes[3]);
-      const numTribunal = Number(partes[4]);
-      if (text[0] === "5") {
-        if (
-          /* TRF4 */ (numSegmento === 4 && numTribunal === 4) ||
-          /* TJSC */ (numSegmento === 8 && numTribunal === 24)
-        ) {
-          sistema = "eproc";
-        }
-      } else if (text[0] === "9" && numSegmento === 4 && numTribunal === 4) {
-        sistema = "SEEU";
-      } else if (text[0] === "0" && numSegmento === 4 && numTribunal === 4) {
-        if (partes[5] === "8000" || partes[5] === "8002") {
-          sistema = "SEI!";
-        } else {
-          sistema = "SIAPRO";
-        }
-      }
-      map.set(key, text);
-    } else if (index === 1) {
+
+    if (index === 1) {
       // Dígito verificador
       const ver = validarDV(numproc);
       if (ver.isLeft) {
@@ -100,7 +102,7 @@ export function update(output: HTMLOutputElement, input: string) {
       if (!tribunal) return;
       if (num === 0) {
         map.set(key, tribunal.nome);
-      } else if (num === 9666) {
+      } else if (num === 9666 && numSegmento === 4 && numTribunal === 4) {
         map.set(key, "Secretaria de Precatórios");
       } else if (num > 8999) {
         map.set(key, "Turma recursal");
@@ -158,7 +160,7 @@ export function update(output: HTMLOutputElement, input: string) {
   });
   if (sistema) {
     map.set("Sistema", sistema);
-  }
+  }*/
   let s = "<table>";
   for (const [key, value] of map.entries()) {
     s += `<tr><th>${key}:</th><td>${value}</td></tr>`;
@@ -166,3 +168,11 @@ export function update(output: HTMLOutputElement, input: string) {
   s += "</table>";
   output.innerHTML = s;
 }
+export const nomePartes = [
+  "Número sequencial",
+  "Dígito verificador",
+  "Ano",
+  "Segmento do Poder Judiciário",
+  "Tribunal",
+  "Unidade de origem",
+];

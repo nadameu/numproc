@@ -11,4 +11,5 @@ export function main() {
     update(output, input.value);
   });
   input.addEventListener("input", () => update(output, input.value));
+  update(output, input.value);
 }
