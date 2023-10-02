@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt_BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verificação de números de processos</title>
+    <style>
+      .erro {
+        color: red;
+      }
+    </style>
+  </head>
+  <body>
+    <a href="/">Início</a> &gt; Verificação de números de processos
+
+    <h1>Verificação de números de processos</h1>
+    <p>
+      Cole na caixa abaixo um número de processo no formato de numeração única
+      do CNJ (NNNNNNN-DD.AAAA.J.TR.OOOO). Caracteres separadores (traços e
+      pontos) são opcionais.
+    </p>
+
+    <form>
+      <input
+        type="text"
+        placeholder="Número de processo"
+        size="25"
+        autofocus
+      /><br />
+      <br />
+      <button type="reset">Limpar</button>
+    </form>
+
+    <output></output>
+
+    <script type="module" src="./src/index.ts"></script>
+  </body>
+</html>
