@@ -8,8 +8,8 @@ export function main() {
   reset.addEventListener("click", () => {
     input.value = "";
     input.focus();
-    update(output, input.value);
+    update(output, input);
   });
-  input.addEventListener("input", () => update(output, input.value));
-  update(output, input.value);
+  input.addEventListener("input", () => update(output, input));
+  update(output, input);
 }

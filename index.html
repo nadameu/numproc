@@ -8,6 +8,17 @@
       .erro {
         color: red;
       }
+      li,
+      .clickable {
+        cursor: pointer;
+      }
+      table,
+      th,
+      td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 2px;
+      }
     </style>
   </head>
   <body>
@@ -16,9 +27,9 @@
     <h1>Verificação de números de processos</h1>
     <p>
       Cole na caixa abaixo um número de processo no formato de numeração única
-      do CNJ (NNNNNNN-DD.AAAA.J.TR.OOOO). Caracteres separadores (traços e
-      pontos) são opcionais.
+      do CNJ (NNNNNNN-DD.AAAA.J.TR.OOOO).
     </p>
+    <p>Caracteres separadores (traços e pontos) são opcionais.</p>
 
     <form>
       <input
@@ -30,7 +41,7 @@
       <br />
       <button type="reset">Limpar</button>
     </form>
-
+    <br />
     <output></output>
 
     <script type="module" src="./src/index.ts"></script>

@@ -1,67 +1,201 @@
-import { Either } from "./Either";
-import { parseInput } from "./logic";
+import { Either, Right } from "./Either";
+import { h } from "./h";
+import { parseInput } from "./parseInput";
 
-export function update(output: HTMLOutputElement, input: string) {
+export function update(
+  output: HTMLOutputElement,
+  inputElement: HTMLInputElement
+) {
+  const input = inputElement.value;
   output.textContent = "";
   if (input === "") return;
-  const sanitizedEither = parseInput(input);
-  if (sanitizedEither.isLeft) {
-    output.innerHTML = `<span class="erro">${sanitizedEither.leftValue}</span>`;
+  const resultado = parseInput(input);
+  if (resultado.isLeft) {
+    output.append(
+      h("p", {}, h("span", { className: "erro" }, resultado.leftValue))
+    );
+    const digitos = resultado.leftValue.replace(/\D/g, "");
+    if (digitos.length === 21) {
+      output.append(
+        h(
+          "p",
+          {},
+          "Há um dígito a mais. Sugestões de números válidos similares (clique para utilizar):"
+        )
+      );
+      const possibilidades = new Set<string>();
+      for (let i = 0; i < 21; i += 1) {
+        const antes = digitos.slice(0, i);
+        const depois = digitos.slice(i + 1, 21);
+        const tentativa = `${antes}${depois}`;
+        const resultado = parseInput(tentativa);
+        if (resultado.isRight) {
+          const { formatado, digitoVerificador, ano, unidade } =
+            resultado.rightValue;
+          if (
+            digitoVerificador.isRight &&
+            ano.isRight &&
+            unidade &&
+            unidade.isRight
+          ) {
+            possibilidades.add(formatado);
+          }
+        }
+      }
+      output.append(
+        h(
+          "ul",
+          {},
+          ...[...possibilidades].map((x) => h("li", {}, criarLink(x)))
+        )
+      );
+    } else if (digitos.length === 19) {
+      output.append(
+        h(
+          "p",
+          {},
+          "Há um dígito faltando. Sugestões de números válidos similares (clique para utilizar):"
+        )
+      );
+      const possibilidades = new Set<string>();
+      for (let i = 0; i < 20; i += 1) {
+        const antes = digitos.slice(0, i);
+        const depois = digitos.slice(i, 19);
+        for (let j = 0; j < 10; j += 1) {
+          const tentativa = `${antes}${j}${depois}`;
+          const resultado = parseInput(tentativa);
+          if (resultado.isRight) {
+            const { formatado, digitoVerificador, ano, unidade } =
+              resultado.rightValue;
+            if (
+              digitoVerificador.isRight &&
+              ano.isRight &&
+              unidade &&
+              unidade.isRight
+            )
+              possibilidades.add(formatado);
+          }
+        }
+      }
+      output.append(
+        h(
+          "ul",
+          {},
+          ...[...possibilidades].map((x) => h("li", {}, criarLink(x)))
+        )
+      );
+    }
     return;
   }
-  const numproc = sanitizedEither.rightValue;
 
-  const map = new Map();
-  map.set("Número do processo", numproc.formatado);
-  map.set("Número sequencial", numproc.sequencial.txt);
-  mmm(map, "Dígito verificador", numproc.digitoVerificador, (x) => x.txt);
-  mmm(map, "Ano", numproc.ano, (x) => x.txt);
-  mmm(
-    map,
-    "Segmento do Poder Judiciário",
-    numproc.segmento,
-    (segmento) => `${segmento.txt} - ${segmento.nome}`
+  const {
+    txt: numproc,
+    formatado,
+    sequencial,
+    digitoVerificador,
+    ano,
+    segmento,
+    tribunal,
+    unidade,
+  } = resultado.rightValue;
+  output.append(
+    h(
+      "table",
+      {},
+      h(
+        "thead",
+        {},
+        h(
+          "tr",
+          null,
+          ...Array.from(numproc, (x) => h("th", null, x)),
+          h("td", null, "Número do processo: ", criarLink(formatado))
+        )
+      ),
+      h(
+        "tbody",
+        null,
+        criarLinha(
+          numproc,
+          0,
+          7,
+          Right(sequencial),
+          (x) => `Número sequencial: ${x.num}`
+        ),
+        criarLinha(
+          numproc,
+          7,
+          9,
+          digitoVerificador,
+          (x) => `Dígito verificador: ${x.txt}`
+        ),
+        criarLinha(numproc, 9, 13, ano, (x) => `Ano: ${x.num}`),
+        criarLinha(
+          numproc,
+          13,
+          14,
+          segmento,
+          (x) => `Segmento do Poder Judiciário: ${x.txt} - ${x.nome}`
+        ),
+        ...(tribunal
+          ? [
+              criarLinha(
+                numproc,
+                14,
+                16,
+                tribunal,
+                (x) => `Tribunal: ${x.txt} - ${x.nome}`
+              ),
+            ]
+          : []),
+        ...(unidade
+          ? [
+              criarLinha(numproc, 16, 20, unidade, (x) => {
+                if (x.nome) return `Unidade de origem: ${x.txt} - ${x.nome}`;
+                else return `Unidade de origem: ${x.txt}`;
+              }),
+            ]
+          : [])
+      )
+    )
   );
-  if (numproc.tribunal) {
-    mmm(
-      map,
-      "Tribunal",
-      numproc.tribunal,
-      (tribunal) => `${tribunal.txt} - ${tribunal.nome}`
-    );
-  }
-  if (numproc.unidade) {
-    mmm(map, "Unidade de origem", numproc.unidade, (unidade) => {
-      if (unidade.nome) return `${unidade.txt} - ${unidade.nome}`;
-      else return unidade.txt;
-    });
-  }
-  let s = "<table>";
-  for (const [key, value] of map.entries()) {
-    s += `<tr><th>${key}:</th><td>${value}</td></tr>`;
-  }
-  s += "</table>";
-  output.innerHTML = s;
-}
-export const nomePartes = [
-  "Número sequencial",
-  "Dígito verificador",
-  "Ano",
-  "Segmento do Poder Judiciário",
-  "Tribunal",
-  "Unidade de origem",
-];
 
-function mmm<T>(
-  map: Map<string, string>,
-  key: string,
+  function criarLink(numproc: string) {
+    const span = h("span", { className: "clickable" }, numproc);
+    span.addEventListener("click", () => {
+      inputElement.value = numproc;
+      inputElement.dispatchEvent(new Event("input"));
+    });
+    return span;
+  }
+}
+function fromEither<T>(
   either: Either<string, T>,
   transform: (value: T) => string
 ) {
-  if (either.isLeft) {
-    map.set(key, `<span class="erro">${either.leftValue}</span>`);
-  } else {
-    const value = either.rightValue;
-    map.set(key, transform(value));
-  }
+  if (either.isLeft) return h("span", { className: "erro" }, either.leftValue);
+  else return transform(either.rightValue);
+}
+
+function criarCelulas(numproc: string, inicio: number, fim: number) {
+  return [
+    ...(inicio === 0 ? [] : [h("td", { colSpan: inicio })]),
+    ...Array.from(numproc.slice(inicio, fim), (x) => h("td", null, x)),
+    ...(fim === 20 ? [] : [h("td", { colSpan: 20 - fim })]),
+  ];
+}
+
+function criarLinha<T>(
+  numproc: string,
+  start: number,
+  end: number,
+  campo: Either<string, T>,
+  transform: (valor: T) => string
+) {
+  return h(
+    "tr",
+    null,
+    ...criarCelulas(numproc, start, end),
+    h("td", {}, fromEither(campo, transform))
+  );
 }
