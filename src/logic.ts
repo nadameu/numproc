@@ -83,12 +83,14 @@ export const segmentos = createPartes(
     "Justiça Eleitoral",
     createPartes(
       createTribunal(0, "Tribunal Superior Eleitoral"),
-      ...Array.from({ length: 27 }, (_, i) =>
-        createTribunal(
+      ...Array.from({ length: 27 }, (_, i) => {
+        const tribunal = createTribunal(
           i + 1,
           `Tribunal Regional Eleitoral de(o)(a) ${estados[i + 1]}`
-        )
-      )
+        );
+        tribunal.nomeUnidades = (num) => `${num}ª Zona Eleitoral`;
+        return tribunal;
+      })
     )
   ),
   createSegmento(
@@ -168,7 +170,8 @@ segmentos.get(4)!.tribunais.get(4)!.unidades = createPartes(
   ),
   ...Array.from({ length: 4 }, (_, i) =>
     createUnidade(8000 + i, "Processos administrativos (SEI!)")
-  )
+  ),
+  createUnidade(9666, "Secretaria de Precatórios")
 );
 const cidadesSC =
   `,Abelardo Luz,Anchieta,Anita Garibaldi,Araranguá,Bal. Camboriú,Barra Velha,Biguaçu,Blumenau,Bom Retiro,Braço do Norte,Brusque,Caçador,Campo Erê,Campos Novos,Canoinhas,Capinzal,Dionísio Cerqueira,Chapecó,Concórdia,Criciúma,Cunha Porã,Curitibanos,Capital,Fraiburgo,Gaspar,Guaramirim,Ibirama,Içara,Imaruí,Imbituba,Indaial,Itaiópolis,Itajaí,Itapiranga,Ituporanga,Jaraguá do Sul,Joaçaba,Joinville,Lages,Laguna,Mafra,Maravilha,Mondaí,Orleans,Palhoça,Palmitos,Papanduva,Bal. Piçarras,Pinhalzinho,Pomerode,Ponte Serrada,Porto União,Quilombo,Rio do Sul,Rio Negrinho,Santa Cecília,Santo Amaro da Imperatriz,São Bento do Sul,São Carlos,São Domingos,São Francisco do Sul,São João Batista,São Joaquim,São José,São José do Cedro,São Lourenço do Oeste,São Miguel do Oeste,Seara,Sombrio,Taió,Tangará,Tijucas,Timbó,Trombudo Central,Tubarão,Turvo,Urubici,Urussanga,Videira,Xanxerê,Xaxim,Capital/Estreito,Correia Pinto,Descanso,Coronel Freitas,Otacílio Costa,Lauro Müller,Lebon Régis,,Capital/Norte da Ilha,Capital/Eduardo Luz,Capital/Bancário,,,,,,,,,,,Araquari,Ascurra,,,,,,,,,Camboriú,,,,,,Garuva,,,,,Itá,Itapema,Itapoá,,,,,,,,,Navegantes,,,,Porto Belo,,Presidente Getúlio,,Rio do Campo,Rio do Oeste,,,,,,,,,,,,,,,Armazém,,,,Capivari de Baixo,,,Forquilhinha,Garopaba,,,,,,,,Meleiro,,,,,,,,,,,,,,Santa Rosa do Sul,,,,,,,,,,,,,,,,,,,,,,,,,,,Campo Belo do Sul,,Catanduvas,,,,,,,,,,,,,,,,,Herval D'Oeste,,,,,,,Ipumirim,,,,,,,,,,,,,,Modelo,,,,,,,,,,,,,,,,,,,,,,,,,,Jaguaruna`.split(
@@ -191,8 +194,8 @@ function unidadesFromNomes(
     .filter(<T>(x: T | null): x is T => x !== null);
 }
 
-export function sanitize(numproc: string): Either<string, NumProc> {
-  const semDigitos = numproc.replace(/(^\D+|\D+$)/g, "");
+export function parseInput(input: string): Either<string, NumProc> {
+  const semDigitos = input.replace(/(^\D+|\D+$)/g, "");
   const re = new RegExp(
     "^" +
       "seq:7,dv:2,ano:4,seg:1,tr:2,un:4"
@@ -204,7 +207,7 @@ export function sanitize(numproc: string): Either<string, NumProc> {
   );
   const valido = semDigitos.match(re);
   if (!valido) return Left(`Número de processo inválido: ${semDigitos}`);
-  const txt = valido.slice(1).join("");
+  const numproc = valido.slice(1).join("");
   const formatado = formatar(valido.slice(1));
   const partes = valido.groups as unknown as {
     seq: string;
@@ -219,10 +222,17 @@ export function sanitize(numproc: string): Either<string, NumProc> {
     const num = Number(txt);
     return { txt, num };
   })();
-  const digitoVerificador = ((): DigitoVerificador => {
+  const digitoVerificador = ((): Either<string, DigitoVerificador> => {
     const txt = partes.dv;
     const num = Number(txt);
-    return { txt, num };
+    const resultado = validarDV(numproc);
+    if (resultado.isLeft) {
+      const digitoCorreto = resultado.leftValue.slice(7, 9);
+      return Left(
+        `Dígito verificador incorreto: "${txt}". Esperado: "${digitoCorreto}".`
+      );
+    }
+    return Right({ txt, num });
   })();
   const ano = ((): Either<string, Ano> => {
     const txt = partes.ano;
@@ -277,10 +287,10 @@ export function sanitize(numproc: string): Either<string, NumProc> {
     if (nomeUnidades) {
       return Right({ txt, num, nome: nomeUnidades(num) });
     }
-    return Right({ txt, num, nome: txt });
+    return Right({ txt, num });
   })();
   return Right({
-    txt,
+    txt: numproc,
     formatado,
     sequencial,
     digitoVerificador,

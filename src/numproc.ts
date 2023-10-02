@@ -17,13 +17,13 @@ export interface Tribunal extends Parte {
   nomeUnidades?: (num: number) => string;
 }
 export interface Unidade extends Parte {
-  nome: string;
+  nome?: string;
 }
 export interface NumProc {
   txt: string;
   formatado: string;
   sequencial: Sequencial;
-  digitoVerificador: DigitoVerificador;
+  digitoVerificador: Either<string, DigitoVerificador>;
   ano: Either<string, Ano>;
   segmento: Either<string, Segmento>;
   tribunal: Either<string, Tribunal> | null;
