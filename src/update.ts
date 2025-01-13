@@ -25,14 +25,8 @@ export function update(
     );
     const digitos = resultado.leftValue.replace(/\D/g, "");
     if (digitos.length === 21) {
-      output.append(
-        h(
-          "p",
-          {},
-          "Há um dígito a mais. Sugestões de números válidos similares (clique para utilizar):"
-        )
-      );
-      const possibilidades = new Set<string>();
+      output.append(h("p", {}, "Há um dígito a mais."));
+      const possibilidades = new Set<{ formatado: string; indice: number }>();
       for (let i = 0; i < 21; i += 1) {
         const antes = digitos.slice(0, i);
         const depois = digitos.slice(i + 1, 21);
@@ -47,26 +41,31 @@ export function update(
             unidade &&
             unidade.isRight
           ) {
-            possibilidades.add(formatado);
+            possibilidades.add({ formatado, indice: i });
           }
         }
       }
-      output.append(
-        h(
-          "ul",
-          {},
-          ...[...possibilidades].map((x) => h("li", {}, criarLink(x)))
-        )
-      );
+      if (possibilidades.size > 0) {
+        output.append(
+          h(
+            "p",
+            {},
+            " Sugestões de números válidos similares (clique para utilizar):"
+          )
+        );
+        output.append(
+          h(
+            "ul",
+            {},
+            ...[...possibilidades].map((x) =>
+              h("li", {}, criarLink(x.formatado, -1 - x.indice))
+            )
+          )
+        );
+      }
     } else if (digitos.length === 19) {
-      output.append(
-        h(
-          "p",
-          {},
-          "Há um dígito faltando. Sugestões de números válidos similares (clique para utilizar):"
-        )
-      );
-      const possibilidades = new Set<string>();
+      output.append(h("p", {}, "Há um dígito faltando."));
+      const possibilidades = new Set<{ formatado: string; indice: number }>();
       for (let i = 0; i < 20; i += 1) {
         const antes = digitos.slice(0, i);
         const depois = digitos.slice(i, 19);
@@ -82,17 +81,28 @@ export function update(
               unidade &&
               unidade.isRight
             )
-              possibilidades.add(formatado);
+              possibilidades.add({ formatado, indice: i });
           }
         }
       }
-      output.append(
-        h(
-          "ul",
-          {},
-          ...[...possibilidades].map((x) => h("li", {}, criarLink(x)))
-        )
-      );
+      if (possibilidades.size > 0) {
+        output.append(
+          h(
+            "p",
+            {},
+            "Sugestões de números válidos similares (clique para utilizar):"
+          )
+        );
+        output.append(
+          h(
+            "ul",
+            {},
+            ...[...possibilidades].map((x) =>
+              h("li", {}, criarLink(x.formatado, x.indice))
+            )
+          )
+        );
+      }
     }
     return;
   }
@@ -175,6 +185,66 @@ export function update(
       )
     )
   );
+
+  if (
+    digitoVerificador.isLeft ||
+    ano.isLeft ||
+    segmento.isLeft ||
+    tribunal?.isLeft ||
+    unidade?.isLeft
+  ) {
+    const possibilidades = new Set<{ formatado: string; indice: number }>();
+    for (let i = 0; i < 20; i += 1) {
+      const antes = numproc.slice(0, i);
+      const depois = numproc.slice(i + 1, 20);
+      for (let j = 0; j < 10; j += 1) {
+        const tentativa = `${antes}${j}${depois}`;
+        const resultado = parseInput(tentativa);
+        if (resultado.isRight) {
+          const { formatado, digitoVerificador, ano, unidade } =
+            resultado.rightValue;
+          if (
+            digitoVerificador.isRight &&
+            ano.isRight &&
+            unidade &&
+            unidade.isRight
+          ) {
+            possibilidades.add({ formatado, indice: i });
+          }
+        }
+      }
+    }
+    if (possibilidades.size > 0) {
+      output.append(
+        h(
+          "p",
+          {},
+          h(
+            "span",
+            { className: "erro" },
+            `Número de processo inválido: ${formatado}.`
+          )
+        )
+      );
+      output.append(
+        h(
+          "p",
+          {},
+          "Sugestões de números válidos similares (clique para utilizar):"
+        )
+      );
+      output.append(
+        h(
+          "ul",
+          {},
+          ...[...possibilidades].map((x) =>
+            h("li", {}, criarLink(x.formatado, x.indice))
+          )
+        )
+      );
+    }
+  }
+
   output.append(h("br"));
   const email = formatarEmail(formatado);
   output.append(
@@ -184,8 +254,38 @@ export function update(
     criarBotaoCopiar(email)
   );
 
-  function criarLink(numproc: string) {
-    const span = h("span", { className: "clickable" }, numproc);
+  function criarLink(numproc: string, destacarIndice: number) {
+    const span = h(
+      "span",
+      { className: "clickable" },
+      ...((txt): (string | HTMLElement)[] => {
+        /**
+         * Converte um índice de um número sem formatação no índice
+         * correspondente no número formatado
+         */
+        const indices = [
+          0, 1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23, 24,
+          25,
+        ];
+        const [antes, destacado, depois] = ((): [string, string, string] => {
+          if (destacarIndice >= 0) {
+            const indiceAntes = indices[destacarIndice]!;
+            const indiceDepois = indiceAntes + 1;
+            const antes = txt.slice(0, indiceAntes);
+            const destacado = txt.slice(indiceAntes, indiceDepois);
+            const depois = txt.slice(indiceDepois, 25);
+            return [antes, destacado, depois];
+          } else {
+            const indice = indices[-1 - destacarIndice]!;
+            const antes = txt.slice(0, indice);
+            const destacado = "X";
+            const depois = txt.slice(indice, 25);
+            return [antes, destacado, depois];
+          }
+        })();
+        return [antes, h("strong", {}, h("u", {}, destacado)), depois];
+      })(numproc)
+    );
     const onclick = () => {
       inputElement.value = numproc;
       inputElement.dispatchEvent(new Event("input"));

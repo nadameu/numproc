@@ -40,7 +40,6 @@ export function parseInput(input: string): Either<string, NumProc> {
   })();
   const digitoVerificador = ((): Either<string, DigitoVerificador> => {
     const txt = txtDigitoVerificador;
-    const num = Number(txt);
     const resultado = validarDV(numproc);
     if (resultado.isLeft) {
       const digitoCorreto = resultado.leftValue.slice(7, 9);
@@ -48,6 +47,7 @@ export function parseInput(input: string): Either<string, NumProc> {
         `Dígito verificador incorreto: "${txt}". Esperado: "${digitoCorreto}".`
       );
     }
+    const num = Number(txt);
     return Right({ txt, num });
   })();
   const ano = ((): Either<string, Ano> => {
@@ -64,8 +64,14 @@ export function parseInput(input: string): Either<string, NumProc> {
     const txt = txtSegmento;
     const num = Number(txt);
     const segmento = segmentos.get(num);
-    if (!segmento)
-      return Left(`Segmento inválido: "${txt}". Esperado: "1" a "9".`);
+    if (!segmento) {
+      return Left(
+        `Segmento inválido: "${txt}". Esperado: ${formatarRanges(
+          segmentos,
+          1
+        )}.`
+      );
+    }
     return Right(segmento);
   })();
   const tribunal = ((): Either<string, Tribunal> | null => {
@@ -77,8 +83,8 @@ export function parseInput(input: string): Either<string, NumProc> {
     if (!tribunal)
       return Left(
         `Tribunal inválido: "${txt}". Esperado: ${formatarRanges(
-          [...tribunais.keys()],
-          (x) => `${x.toString().padStart(2, "0")}`
+          tribunais,
+          2
         )}.`
       );
     return Right(tribunal);
@@ -93,8 +99,8 @@ export function parseInput(input: string): Either<string, NumProc> {
       if (!unidade)
         return Left(
           `Unidade de origem inválida: "${txt}". Esperado: ${formatarRanges(
-            [...unidades.keys()],
-            (x) => `${x.toString().padStart(4, "0")}`
+            unidades,
+            4
           )}.`
         );
       return Right(unidade);
@@ -122,10 +128,8 @@ function formatarPartes(partes: string[]): string {
 }
 
 type NonEmpty<T> = [T, ...T[]];
-function formatarRanges(
-  numbers: number[],
-  format: (x: number) => string = (x) => `"${x.toString().padStart(2, "0")}"`
-) {
+function formatarRanges(map: Map<number, unknown>, digitos: number) {
+  const numbers = [...map.keys()];
   if (numbers.length < 1) throw new TypeError(`Array vazia.`);
   const ranges: NonEmpty<[number] | [number, number]> = [[numbers[0]!]];
   for (let i = 1; i < numbers.length; i += 1) {
@@ -139,7 +143,7 @@ function formatarRanges(
     }
   }
   return ranges
-    .map((xs) => xs.map((x) => format(x)))
+    .map((xs) => xs.map((x) => `"${x.toString().padStart(digitos, "0")}"`))
     .map((xs) => xs.join(" a "))
     .join(", ");
 }
