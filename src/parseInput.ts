@@ -44,7 +44,7 @@ export function parseInput(input: string): Either<string, NumProc> {
     if (resultado.isLeft) {
       const digitoCorreto = resultado.leftValue.slice(7, 9);
       return Left(
-        `Dígito verificador incorreto: "${txt}". Esperado: "${digitoCorreto}".`
+        `Dígito verificador incorreto: "${txt}". Esperado: "${digitoCorreto}".`,
       );
     }
     const num = Number(txt);
@@ -68,8 +68,8 @@ export function parseInput(input: string): Either<string, NumProc> {
       return Left(
         `Segmento inválido: "${txt}". Esperado: ${formatarRanges(
           segmentos,
-          1
-        )}.`
+          1,
+        )}.`,
       );
     }
     return Right(segmento);
@@ -84,8 +84,8 @@ export function parseInput(input: string): Either<string, NumProc> {
       return Left(
         `Tribunal inválido: "${txt}". Esperado: ${formatarRanges(
           tribunais,
-          2
-        )}.`
+          2,
+        )}.`,
       );
     return Right(tribunal);
   })();
@@ -100,8 +100,8 @@ export function parseInput(input: string): Either<string, NumProc> {
         return Left(
           `Unidade de origem inválida: "${txt}". Esperado: ${formatarRanges(
             unidades,
-            4
-          )}.`
+            4,
+          )}.`,
         );
       return Right(unidade);
     }
@@ -157,6 +157,6 @@ export function validarDV(numproc: string): Either<string, string> {
   return Left(
     `${numproc.slice(0, 7)}${correto
       .toString()
-      .padStart(2, "0")}${numproc.slice(9)}`
+      .padStart(2, "0")}${numproc.slice(9)}`,
   );
 }

@@ -7,7 +7,7 @@ const cleanupFns: Function[] = [];
 
 export function update(
   output: HTMLOutputElement,
-  inputElement: HTMLInputElement
+  inputElement: HTMLInputElement,
 ) {
   if (cleanupFns.length > 0) {
     for (const fn of cleanupFns) {
@@ -21,7 +21,7 @@ export function update(
   const resultado = parseInput(input);
   if (resultado.isLeft) {
     output.append(
-      h("p", {}, h("span", { className: "erro" }, resultado.leftValue))
+      h("p", {}, h("span", { className: "erro" }, resultado.leftValue)),
     );
     const digitos = resultado.leftValue.replace(/\D/g, "");
     if (digitos.length === 21) {
@@ -50,17 +50,17 @@ export function update(
           h(
             "p",
             {},
-            " Sugestões de números válidos similares (clique para utilizar):"
-          )
+            " Sugestões de números válidos similares (clique para utilizar):",
+          ),
         );
         output.append(
           h(
             "ul",
             {},
             ...[...possibilidades].map((x) =>
-              h("li", {}, criarLink(x.formatado, -1 - x.indice))
-            )
-          )
+              h("li", {}, criarLink(x.formatado, -1 - x.indice)),
+            ),
+          ),
         );
       }
     } else if (digitos.length === 19) {
@@ -90,17 +90,17 @@ export function update(
           h(
             "p",
             {},
-            "Sugestões de números válidos similares (clique para utilizar):"
-          )
+            "Sugestões de números válidos similares (clique para utilizar):",
+          ),
         );
         output.append(
           h(
             "ul",
             {},
             ...[...possibilidades].map((x) =>
-              h("li", {}, criarLink(x.formatado, x.indice))
-            )
-          )
+              h("li", {}, criarLink(x.formatado, x.indice)),
+            ),
+          ),
         );
       }
     }
@@ -134,9 +134,9 @@ export function update(
             "Número do processo: ",
             formatado,
             " ",
-            criarBotaoCopiar(formatado)
-          )
-        )
+            criarBotaoCopiar(formatado),
+          ),
+        ),
       ),
       h(
         "tbody",
@@ -146,14 +146,14 @@ export function update(
           0,
           7,
           Right(sequencial),
-          (x) => `Número sequencial: ${x.num}`
+          (x) => `Número sequencial: ${x.num}`,
         ),
         criarLinha(
           numproc,
           7,
           9,
           digitoVerificador,
-          (x) => `Dígito verificador: ${x.txt}`
+          (x) => `Dígito verificador: ${x.txt}`,
         ),
         criarLinha(numproc, 9, 13, ano, (x) => `Ano: ${x.num}`),
         criarLinha(
@@ -161,7 +161,7 @@ export function update(
           13,
           14,
           segmento,
-          (x) => `Segmento do Poder Judiciário: ${x.txt} - ${x.nome}`
+          (x) => `Segmento do Poder Judiciário: ${x.txt} - ${x.nome}`,
         ),
         ...(tribunal
           ? [
@@ -170,7 +170,7 @@ export function update(
                 14,
                 16,
                 tribunal,
-                (x) => `Tribunal: ${x.txt} - ${x.nome}`
+                (x) => `Tribunal: ${x.txt} - ${x.nome}`,
               ),
             ]
           : []),
@@ -181,9 +181,9 @@ export function update(
                 else return `Unidade de origem: ${x.txt}`;
               }),
             ]
-          : [])
-      )
-    )
+          : []),
+      ),
+    ),
   );
 
   if (
@@ -222,25 +222,25 @@ export function update(
           h(
             "span",
             { className: "erro" },
-            `Número de processo inválido: ${formatado}.`
-          )
-        )
+            `Número de processo inválido: ${formatado}.`,
+          ),
+        ),
       );
       output.append(
         h(
           "p",
           {},
-          "Sugestões de números válidos similares (clique para utilizar):"
-        )
+          "Sugestões de números válidos similares (clique para utilizar):",
+        ),
       );
       output.append(
         h(
           "ul",
           {},
           ...[...possibilidades].map((x) =>
-            h("li", {}, criarLink(x.formatado, x.indice))
-          )
-        )
+            h("li", {}, criarLink(x.formatado, x.indice)),
+          ),
+        ),
       );
     }
   }
@@ -251,7 +251,7 @@ export function update(
     "Texto para pesquisar este número de processo no GMail: ",
     h("br"),
     h("pre", {}, email),
-    criarBotaoCopiar(email)
+    criarBotaoCopiar(email),
   );
 
   function criarLink(numproc: string, destacarIndice: number) {
@@ -284,7 +284,7 @@ export function update(
           }
         })();
         return [antes, h("strong", {}, h("u", {}, destacado)), depois];
-      })(numproc)
+      })(numproc),
     );
     const onclick = () => {
       inputElement.value = numproc;
@@ -308,10 +308,10 @@ export function update(
         (err) => {
           console.error(err);
           button.replaceWith(
-            h("span", { className: "erro" }, "Não foi possível copiar.")
+            h("span", { className: "erro" }, "Não foi possível copiar."),
           );
           podeCopiar = false;
-        }
+        },
       );
     };
     button.addEventListener("click", onclick);
@@ -321,7 +321,7 @@ export function update(
 }
 function fromEither<T>(
   either: Either<string, T>,
-  transform: (value: T) => string
+  transform: (value: T) => string,
 ) {
   if (either.isLeft) return h("span", { className: "erro" }, either.leftValue);
   else return transform(either.rightValue);
@@ -340,13 +340,13 @@ function criarLinha<T>(
   start: number,
   end: number,
   campo: Either<string, T>,
-  transform: (valor: T) => string
+  transform: (valor: T) => string,
 ) {
   return h(
     "tr",
     null,
     ...criarCelulas(numproc, start, end),
-    h("td", {}, fromEither(campo, transform))
+    h("td", {}, fromEither(campo, transform)),
   );
 }
 
@@ -354,7 +354,7 @@ function formatarEmail(formatado: string): string {
   const numproc = formatado.replace(/\D/g, "");
   const alternativo = `${numproc.slice(0, 7)}-${numproc.slice(
     7,
-    9
+    9,
   )}.${numproc.slice(9, 13)}.${numproc.slice(13, 16)}.${numproc.slice(16, 20)}`;
   return [formatado, alternativo, numproc].join("|");
 }

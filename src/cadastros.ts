@@ -20,27 +20,27 @@ export const segmentos = createPartes(
   createSegmento(
     1,
     "Supremo Tribunal Federal",
-    createPartes(createTribunal(0, "Supremo Tribunal Federal"))
+    createPartes(createTribunal(0, "Supremo Tribunal Federal")),
   ),
   createSegmento(
     2,
     "Conselho Nacional de Justiça",
-    createPartes(createTribunal(0, "Conselho Nacional de Justiça"))
+    createPartes(createTribunal(0, "Conselho Nacional de Justiça")),
   ),
   createSegmento(
     3,
     "Superior Tribunal de Justiça",
-    createPartes(createTribunal(0, "Superior Tribunal de Justiça"))
+    createPartes(createTribunal(0, "Superior Tribunal de Justiça")),
   ),
   createSegmento(
     4,
     "Justiça Federal",
     createPartes(
       ...range(1, 6).map((i) =>
-        createTribunal(i, `Tribunal Regional Federal da ${i}ª Região`)
+        createTribunal(i, `Tribunal Regional Federal da ${i}ª Região`),
       ),
-      createTribunal(90, "Conselho de Justiça Federal")
-    )
+      createTribunal(90, "Conselho de Justiça Federal"),
+    ),
   ),
   createSegmento(
     5,
@@ -48,10 +48,10 @@ export const segmentos = createPartes(
     createPartes(
       createTribunal(0, "Tribunal Superior do Trabalho"),
       ...range(1, 24).map((i) =>
-        createTribunal(i, `Tribunal Regional do Trabalho da ${i}ª Região`)
+        createTribunal(i, `Tribunal Regional do Trabalho da ${i}ª Região`),
       ),
-      createTribunal(90, "Conselho Superior da Justiça do Trabalho")
-    )
+      createTribunal(90, "Conselho Superior da Justiça do Trabalho"),
+    ),
   ),
   createSegmento(
     6,
@@ -61,12 +61,12 @@ export const segmentos = createPartes(
       ...range(1, 27).map((i) => {
         const tribunal = createTribunal(
           i,
-          `Tribunal Regional Eleitoral de(o)(a) ${estados[i]}`
+          `Tribunal Regional Eleitoral de(o)(a) ${estados[i]}`,
         );
         tribunal.nomeUnidades = (num) => `${num}ª Zona Eleitoral`;
         return tribunal;
-      })
-    )
+      }),
+    ),
   ),
   createSegmento(
     7,
@@ -74,9 +74,9 @@ export const segmentos = createPartes(
     createPartes(
       createTribunal(0, "Superior Tribunal Militar"),
       ...range(1, 12).map((i) =>
-        createTribunal(i, `${i}ª Circunscrição Judiciária Militar`)
-      )
-    )
+        createTribunal(i, `${i}ª Circunscrição Judiciária Militar`),
+      ),
+    ),
   ),
   createSegmento(
     8,
@@ -85,10 +85,10 @@ export const segmentos = createPartes(
       ...range(1, 27).map((i) =>
         createTribunal(
           i,
-          `Tribunal de Justiça do Estado de(o)(a) ${estados[i]}`
-        )
-      )
-    )
+          `Tribunal de Justiça do Estado de(o)(a) ${estados[i]}`,
+        ),
+      ),
+    ),
   ),
   createSegmento(
     9,
@@ -97,11 +97,11 @@ export const segmentos = createPartes(
       ...[13, 21, 26].map((num) =>
         createTribunal(
           num,
-          `Tribunal Militar do Estado de(o)(a) ${estados[num]}`
-        )
-      )
-    )
-  )
+          `Tribunal Militar do Estado de(o)(a) ${estados[num]}`,
+        ),
+      ),
+    ),
+  ),
 );
 
 interface Secao {
@@ -132,31 +132,31 @@ segmentos.get(4)!.tribunais.get(4)!.unidades = createPartes(
     unidadesFromNomes(
       secao.unidades,
       (num) => secao.prefixo * 100 + num,
-      (nome) => `${secao.nome} - ${nome}`
-    )
+      (nome) => `${secao.nome} - ${nome}`,
+    ),
   ),
   ...range(8000, 8003).map((i) =>
-    createUnidade(i, "Processos administrativos (SEI!)")
+    createUnidade(i, "Processos administrativos (SEI!)"),
   ),
-  createUnidade(9666, "Secretaria de Precatórios")
+  createUnidade(9666, "Secretaria de Precatórios"),
 );
 segmentos.get(8)!.tribunais.get(24)!.unidades = createPartes(
-  ...unidadesFromNomes(CSV_Foruns_TJSC.split(","))
+  ...unidadesFromNomes(CSV_Foruns_TJSC.split(",")),
 );
 segmentos.get(8)!.tribunais.get(21)!.unidades = createPartes(
   ...unidadesFromNomes(CSV_Foruns_TJRS.split(",")),
   ...unidadesFromNomes(
     CSV_Foros_Regionais_TJRS.split(","),
-    (n) => n * 1000 + 1
+    (n) => n * 1000 + 1,
   ),
   createUnidade(7000, "Tribunal de Justiça"),
-  createUnidade(9000, "Turmas Recursais")
+  createUnidade(9000, "Turmas Recursais"),
 );
 segmentos.get(8)!.tribunais.get(16)!.unidades = createPartes(
   ...unidadesFromNomes(CSV_Foruns_TJPR.split(";")),
   createUnidade(6000, "SISTEMA ELETRÔNICO DE INFORMAÇÕES - SEI"),
   createUnidade(7000, "TRIBUNAL DE JUSTIÇA"),
-  createUnidade(9000, "TURMA RECURSAL ÚNICA")
+  createUnidade(9000, "TURMA RECURSAL ÚNICA"),
 );
 export function createUnidade(num: number, nome: string): Unidade {
   return { num, txt: num.toString().padStart(4, "0"), nome };
@@ -164,14 +164,14 @@ export function createUnidade(num: number, nome: string): Unidade {
 export function createTribunal(
   num: number,
   nome: string,
-  unidades?: Map<number, Unidade>
+  unidades?: Map<number, Unidade>,
 ): Tribunal {
   return { num, txt: num.toString().padStart(2, "0"), nome, unidades };
 }
 export function createSegmento(
   num: number,
   nome: string,
-  tribunais: Map<number, Tribunal>
+  tribunais: Map<number, Tribunal>,
 ): Segmento {
   return { num, txt: String(num), nome, tribunais };
 }
@@ -181,7 +181,7 @@ export function createPartes<T extends Parte>(...partes: T[]): Map<number, T> {
 export function unidadesFromNomes(
   nomes: string[],
   transformNum: (x: number) => number = (x) => x,
-  transformNome: (x: string) => string = (x) => x
+  transformNome: (x: string) => string = (x) => x,
 ): Unidade[] {
   return nomes
     .map((nome, num) => {
