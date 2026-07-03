@@ -10,5 +10,5 @@ export default defineConfig({
     rules: { "vite-plus/prefer-vite-plus-imports": "error" },
     options: { typeAware: true, typeCheck: true },
   },
-  build: { target: "firefox91", sourcemap: true },
+  build: { target: ["chrome109", "firefox140"], sourcemap: true },
 });
