@@ -66,10 +66,7 @@ export function parseInput(input: string): Either<string, NumProc> {
     const segmento = segmentos.get(num);
     if (!segmento) {
       return Left(
-        `Segmento inválido: "${txt}". Esperado: ${formatarRanges(
-          segmentos,
-          1,
-        )}.`,
+        `Segmento inválido: "${txt}". Esperado: ${formatarRanges(segmentos, 1)}.`,
       );
     }
     return Right(segmento);
@@ -82,10 +79,7 @@ export function parseInput(input: string): Either<string, NumProc> {
     const tribunal = tribunais.get(num);
     if (!tribunal)
       return Left(
-        `Tribunal inválido: "${txt}". Esperado: ${formatarRanges(
-          tribunais,
-          2,
-        )}.`,
+        `Tribunal inválido: "${txt}". Esperado: ${formatarRanges(tribunais, 2)}.`,
       );
     return Right(tribunal);
   })();
@@ -98,10 +92,7 @@ export function parseInput(input: string): Either<string, NumProc> {
       const unidade = unidades.get(num);
       if (!unidade)
         return Left(
-          `Unidade de origem inválida: "${txt}". Esperado: ${formatarRanges(
-            unidades,
-            4,
-          )}.`,
+          `Unidade de origem inválida: "${txt}". Esperado: ${formatarRanges(unidades, 4)}.`,
         );
       return Right(unidade);
     }
@@ -155,8 +146,6 @@ export function validarDV(numproc: string): Either<string, string> {
   if (r3 === 1) return Right(numproc);
   const correto = 98 - (Number(`${r2}00`) % 97);
   return Left(
-    `${numproc.slice(0, 7)}${correto
-      .toString()
-      .padStart(2, "0")}${numproc.slice(9)}`,
+    `${numproc.slice(0, 7)}${correto.toString().padStart(2, "0")}${numproc.slice(9)}`,
   );
 }
