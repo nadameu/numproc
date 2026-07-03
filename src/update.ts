@@ -5,10 +5,7 @@ import { parseInput } from "./parseInput";
 let podeCopiar = true;
 const cleanupFns: Function[] = [];
 
-export function update(
-  output: HTMLOutputElement,
-  inputElement: HTMLInputElement,
-) {
+export function update(output: HTMLOutputElement, inputElement: HTMLInputElement) {
   if (cleanupFns.length > 0) {
     for (const fn of cleanupFns) {
       fn();
@@ -20,9 +17,7 @@ export function update(
   if (input === "") return;
   const resultado = parseInput(input);
   if (resultado.isLeft) {
-    output.append(
-      h("p", {}, h("span", { className: "erro" }, resultado.leftValue)),
-    );
+    output.append(h("p", {}, h("span", { className: "erro" }, resultado.leftValue)));
     const digitos = resultado.leftValue.replace(/\D/g, "");
     if (digitos.length === 21) {
       output.append(h("p", {}, "Há um dígito a mais."));
@@ -33,33 +28,21 @@ export function update(
         const tentativa = `${antes}${depois}`;
         const resultado = parseInput(tentativa);
         if (resultado.isRight) {
-          const { formatado, digitoVerificador, ano, unidade } =
-            resultado.rightValue;
-          if (
-            digitoVerificador.isRight &&
-            ano.isRight &&
-            unidade &&
-            unidade.isRight
-          ) {
+          const { formatado, digitoVerificador, ano, unidade } = resultado.rightValue;
+          if (digitoVerificador.isRight && ano.isRight && unidade && unidade.isRight) {
             possibilidades.add({ formatado, indice: i });
           }
         }
       }
       if (possibilidades.size > 0) {
         output.append(
-          h(
-            "p",
-            {},
-            " Sugestões de números válidos similares (clique para utilizar):",
-          ),
+          h("p", {}, " Sugestões de números válidos similares (clique para utilizar):"),
         );
         output.append(
           h(
             "ul",
             {},
-            ...[...possibilidades].map((x) =>
-              h("li", {}, criarLink(x.formatado, -1 - x.indice)),
-            ),
+            ...[...possibilidades].map((x) => h("li", {}, criarLink(x.formatado, -1 - x.indice))),
           ),
         );
       }
@@ -73,33 +56,19 @@ export function update(
           const tentativa = `${antes}${j}${depois}`;
           const resultado = parseInput(tentativa);
           if (resultado.isRight) {
-            const { formatado, digitoVerificador, ano, unidade } =
-              resultado.rightValue;
-            if (
-              digitoVerificador.isRight &&
-              ano.isRight &&
-              unidade &&
-              unidade.isRight
-            )
+            const { formatado, digitoVerificador, ano, unidade } = resultado.rightValue;
+            if (digitoVerificador.isRight && ano.isRight && unidade && unidade.isRight)
               possibilidades.add({ formatado, indice: i });
           }
         }
       }
       if (possibilidades.size > 0) {
-        output.append(
-          h(
-            "p",
-            {},
-            "Sugestões de números válidos similares (clique para utilizar):",
-          ),
-        );
+        output.append(h("p", {}, "Sugestões de números válidos similares (clique para utilizar):"));
         output.append(
           h(
             "ul",
             {},
-            ...[...possibilidades].map((x) =>
-              h("li", {}, criarLink(x.formatado, x.indice)),
-            ),
+            ...[...possibilidades].map((x) => h("li", {}, criarLink(x.formatado, x.indice))),
           ),
         );
       }
@@ -128,33 +97,14 @@ export function update(
           "tr",
           null,
           ...Array.from(numproc, (x) => h("th", null, x)),
-          h(
-            "td",
-            null,
-            "Número do processo: ",
-            formatado,
-            " ",
-            criarBotaoCopiar(formatado),
-          ),
+          h("td", null, "Número do processo: ", formatado, " ", criarBotaoCopiar(formatado)),
         ),
       ),
       h(
         "tbody",
         null,
-        criarLinha(
-          numproc,
-          0,
-          7,
-          Right(sequencial),
-          (x) => `Número sequencial: ${x.num}`,
-        ),
-        criarLinha(
-          numproc,
-          7,
-          9,
-          digitoVerificador,
-          (x) => `Dígito verificador: ${x.txt}`,
-        ),
+        criarLinha(numproc, 0, 7, Right(sequencial), (x) => `Número sequencial: ${x.num}`),
+        criarLinha(numproc, 7, 9, digitoVerificador, (x) => `Dígito verificador: ${x.txt}`),
         criarLinha(numproc, 9, 13, ano, (x) => `Ano: ${x.num}`),
         criarLinha(
           numproc,
@@ -164,15 +114,7 @@ export function update(
           (x) => `Segmento do Poder Judiciário: ${x.txt} - ${x.nome}`,
         ),
         ...(tribunal
-          ? [
-              criarLinha(
-                numproc,
-                14,
-                16,
-                tribunal,
-                (x) => `Tribunal: ${x.txt} - ${x.nome}`,
-              ),
-            ]
+          ? [criarLinha(numproc, 14, 16, tribunal, (x) => `Tribunal: ${x.txt} - ${x.nome}`)]
           : []),
         ...(unidade
           ? [
@@ -201,14 +143,8 @@ export function update(
         const tentativa = `${antes}${j}${depois}`;
         const resultado = parseInput(tentativa);
         if (resultado.isRight) {
-          const { formatado, digitoVerificador, ano, unidade } =
-            resultado.rightValue;
-          if (
-            digitoVerificador.isRight &&
-            ano.isRight &&
-            unidade &&
-            unidade.isRight
-          ) {
+          const { formatado, digitoVerificador, ano, unidade } = resultado.rightValue;
+          if (digitoVerificador.isRight && ano.isRight && unidade && unidade.isRight) {
             possibilidades.add({ formatado, indice: i });
           }
         }
@@ -216,30 +152,14 @@ export function update(
     }
     if (possibilidades.size > 0) {
       output.append(
-        h(
-          "p",
-          {},
-          h(
-            "span",
-            { className: "erro" },
-            `Número de processo inválido: ${formatado}.`,
-          ),
-        ),
+        h("p", {}, h("span", { className: "erro" }, `Número de processo inválido: ${formatado}.`)),
       );
-      output.append(
-        h(
-          "p",
-          {},
-          "Sugestões de números válidos similares (clique para utilizar):",
-        ),
-      );
+      output.append(h("p", {}, "Sugestões de números válidos similares (clique para utilizar):"));
       output.append(
         h(
           "ul",
           {},
-          ...[...possibilidades].map((x) =>
-            h("li", {}, criarLink(x.formatado, x.indice)),
-          ),
+          ...[...possibilidades].map((x) => h("li", {}, criarLink(x.formatado, x.indice))),
         ),
       );
     }
@@ -263,10 +183,7 @@ export function update(
          * Converte um índice de um número sem formatação no índice
          * correspondente no número formatado
          */
-        const indices = [
-          0, 1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23, 24,
-          25,
-        ];
+        const indices = [0, 1, 2, 3, 4, 5, 6, 8, 9, 11, 12, 13, 14, 16, 18, 19, 21, 22, 23, 24, 25];
         const [antes, destacado, depois] = ((): [string, string, string] => {
           if (destacarIndice >= 0) {
             const indiceAntes = indices[destacarIndice]!;
@@ -307,9 +224,7 @@ export function update(
         },
         (err) => {
           console.error(err);
-          button.replaceWith(
-            h("span", { className: "erro" }, "Não foi possível copiar."),
-          );
+          button.replaceWith(h("span", { className: "erro" }, "Não foi possível copiar."));
           podeCopiar = false;
         },
       );
@@ -319,10 +234,7 @@ export function update(
     return button;
   }
 }
-function fromEither<T>(
-  either: Either<string, T>,
-  transform: (value: T) => string,
-) {
+function fromEither<T>(either: Either<string, T>, transform: (value: T) => string) {
   if (either.isLeft) return h("span", { className: "erro" }, either.leftValue);
   else return transform(either.rightValue);
 }

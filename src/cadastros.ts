@@ -36,9 +36,7 @@ export const segmentos = createPartes(
     4,
     "Justiça Federal",
     createPartes(
-      ...range(1, 6).map((i) =>
-        createTribunal(i, `Tribunal Regional Federal da ${i}ª Região`),
-      ),
+      ...range(1, 6).map((i) => createTribunal(i, `Tribunal Regional Federal da ${i}ª Região`)),
       createTribunal(90, "Conselho de Justiça Federal"),
     ),
   ),
@@ -59,10 +57,7 @@ export const segmentos = createPartes(
     createPartes(
       createTribunal(0, "Tribunal Superior Eleitoral"),
       ...range(1, 27).map((i) => {
-        const tribunal = createTribunal(
-          i,
-          `Tribunal Regional Eleitoral de(o)(a) ${estados[i]}`,
-        );
+        const tribunal = createTribunal(i, `Tribunal Regional Eleitoral de(o)(a) ${estados[i]}`);
         tribunal.nomeUnidades = (num) => `${num}ª Zona Eleitoral`;
         return tribunal;
       }),
@@ -73,9 +68,7 @@ export const segmentos = createPartes(
     "Justiça Militar da União",
     createPartes(
       createTribunal(0, "Superior Tribunal Militar"),
-      ...range(1, 12).map((i) =>
-        createTribunal(i, `${i}ª Circunscrição Judiciária Militar`),
-      ),
+      ...range(1, 12).map((i) => createTribunal(i, `${i}ª Circunscrição Judiciária Militar`)),
     ),
   ),
   createSegmento(
@@ -83,10 +76,7 @@ export const segmentos = createPartes(
     "Justiça dos Estados e do Distrito Federal e Territórios",
     createPartes(
       ...range(1, 27).map((i) =>
-        createTribunal(
-          i,
-          `Tribunal de Justiça do Estado de(o)(a) ${estados[i]}`,
-        ),
+        createTribunal(i, `Tribunal de Justiça do Estado de(o)(a) ${estados[i]}`),
       ),
     ),
   ),
@@ -95,10 +85,7 @@ export const segmentos = createPartes(
     "Justiça Militar Estadual",
     createPartes(
       ...[13, 21, 26].map((num) =>
-        createTribunal(
-          num,
-          `Tribunal Militar do Estado de(o)(a) ${estados[num]}`,
-        ),
+        createTribunal(num, `Tribunal Militar do Estado de(o)(a) ${estados[num]}`),
       ),
     ),
   ),
@@ -135,9 +122,7 @@ segmentos.get(4)!.tribunais.get(4)!.unidades = createPartes(
       (nome) => `${secao.nome} - ${nome}`,
     ),
   ),
-  ...range(8000, 8003).map((i) =>
-    createUnidade(i, "Processos administrativos (SEI!)"),
-  ),
+  ...range(8000, 8003).map((i) => createUnidade(i, "Processos administrativos (SEI!)")),
   createUnidade(9666, "Secretaria de Precatórios"),
 );
 segmentos.get(8)!.tribunais.get(24)!.unidades = createPartes(
@@ -145,10 +130,7 @@ segmentos.get(8)!.tribunais.get(24)!.unidades = createPartes(
 );
 segmentos.get(8)!.tribunais.get(21)!.unidades = createPartes(
   ...unidadesFromNomes(CSV_Foruns_TJRS.split(",")),
-  ...unidadesFromNomes(
-    CSV_Foros_Regionais_TJRS.split(","),
-    (n) => n * 1000 + 1,
-  ),
+  ...unidadesFromNomes(CSV_Foros_Regionais_TJRS.split(","), (n) => n * 1000 + 1),
   createUnidade(7000, "Tribunal de Justiça"),
   createUnidade(9000, "Turmas Recursais"),
 );

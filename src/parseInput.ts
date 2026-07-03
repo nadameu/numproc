@@ -25,14 +25,8 @@ export function parseInput(input: string): Either<string, NumProc> {
   if (!valido) return Left(`Número de processo inválido: ${semDigitos}`);
   const numproc = valido.slice(1).join("");
   const formatado = formatarPartes(valido.slice(1));
-  const [
-    txtSequencial,
-    txtDigitoVerificador,
-    txtAno,
-    txtSegmento,
-    txtTribunal,
-    txtUnidade,
-  ] = valido.slice(1) as Repeat<string, 6>;
+  const [txtSequencial, txtDigitoVerificador, txtAno, txtSegmento, txtTribunal, txtUnidade] =
+    valido.slice(1) as Repeat<string, 6>;
   const sequencial = ((): Sequencial => {
     const txt = txtSequencial;
     const num = Number(txt);
@@ -43,9 +37,7 @@ export function parseInput(input: string): Either<string, NumProc> {
     const resultado = validarDV(numproc);
     if (resultado.isLeft) {
       const digitoCorreto = resultado.leftValue.slice(7, 9);
-      return Left(
-        `Dígito verificador incorreto: "${txt}". Esperado: "${digitoCorreto}".`,
-      );
+      return Left(`Dígito verificador incorreto: "${txt}". Esperado: "${digitoCorreto}".`);
     }
     const num = Number(txt);
     return Right({ txt, num });
@@ -65,9 +57,7 @@ export function parseInput(input: string): Either<string, NumProc> {
     const num = Number(txt);
     const segmento = segmentos.get(num);
     if (!segmento) {
-      return Left(
-        `Segmento inválido: "${txt}". Esperado: ${formatarRanges(segmentos, 1)}.`,
-      );
+      return Left(`Segmento inválido: "${txt}". Esperado: ${formatarRanges(segmentos, 1)}.`);
     }
     return Right(segmento);
   })();
@@ -78,9 +68,7 @@ export function parseInput(input: string): Either<string, NumProc> {
     const tribunais = segmento.rightValue.tribunais;
     const tribunal = tribunais.get(num);
     if (!tribunal)
-      return Left(
-        `Tribunal inválido: "${txt}". Esperado: ${formatarRanges(tribunais, 2)}.`,
-      );
+      return Left(`Tribunal inválido: "${txt}". Esperado: ${formatarRanges(tribunais, 2)}.`);
     return Right(tribunal);
   })();
   const unidade = ((): Either<string, Unidade> | null => {
@@ -145,7 +133,5 @@ export function validarDV(numproc: string): Either<string, string> {
   const r3 = Number(`${r2}${numproc.slice(7, 9)}`) % 97;
   if (r3 === 1) return Right(numproc);
   const correto = 98 - (Number(`${r2}00`) % 97);
-  return Left(
-    `${numproc.slice(0, 7)}${correto.toString().padStart(2, "0")}${numproc.slice(9)}`,
-  );
+  return Left(`${numproc.slice(0, 7)}${correto.toString().padStart(2, "0")}${numproc.slice(9)}`);
 }
